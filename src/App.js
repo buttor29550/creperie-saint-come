@@ -1,31 +1,17 @@
+// 🚩 App.js prêt pour Crêperie de Saint Côme avec route formulaire /reservation
+
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import Accueil from './Accueil';
-import PlanSalle from './PlanSalle';
-import Terrasse from './Terrasse';
-import Stats from './Stats';
-import Admin from './Admin';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Accueil from './pages/Accueil';
+import ReservationForm from './pages/ReservationForm';
 
 function App() {
   return (
     <Router>
-      <div style={{ padding: '20px' }}>
-        <h1>Crêperie de Saint Côme</h1>
-        <nav>
-          <Link to="/">Accueil</Link> |{' '}
-          <Link to="/plan-salle">Plan Salle</Link> |{' '}
-          <Link to="/terrasse">Terrasse</Link> |{' '}
-          <Link to="/stats">Statistiques</Link> |{' '}
-          <Link to="/admin">Admin</Link>
-        </nav>
-        <Routes>
-          <Route path="/" element={<Accueil />} />
-          <Route path="/plan-salle" element={<PlanSalle />} />
-          <Route path="/terrasse" element={<Terrasse />} />
-          <Route path="/stats" element={<Stats />} />
-          <Route path="/admin" element={<Admin />} />
-        </Routes>
-      </div>
+      <Routes>
+        <Route path="/" element={<Accueil />} />
+        <Route path="/reservation" element={<ReservationForm />} />
+      </Routes>
     </Router>
   );
 }
