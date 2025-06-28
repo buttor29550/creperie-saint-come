@@ -1,70 +1,55 @@
-// 🚩 src/pages/PlanDeSalle.js - Crêperie de Saint Côme
+// 🚩 src/pages/PlanDeSalle.js - Plan de Salle connecté à Firestore
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { db } from '../firebase';
+import { collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 
 export default function PlanDeSalle() {
-  const [vue, setVue] = useState('salle'); // 'salle' ou 'terrasse'
-  const [service, setService] = useState(1); // 1 ou 2
+  const [tables, setTables] = useState([]);
+  const [vue, setVue] = useState('salle'); // salle ou terrasse
 
-  const tablesSalle = Array.from({ length: 10 }, (_, i) => ({
-    id: i + 1,
-    etat: 'libre',
-  }));
+  useEffect(() => {
+    const unsubscribe = onSnapshot(collection(db, 'tables'), (snapshot) => {
+      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setTables(data);
+    });
+    return () => unsubscribe();
+  }, []);
 
-  const tablesTerrasse = Array.from({ length: 5 }, (_, i) => ({
-    id: i + 11,
-    etat: 'libre',
-  }));
-
-  const [tables, setTables] = useState(tablesSalle);
-
-  const basculerVue = () => {
-    if (vue === 'salle') {
-      setVue('terrasse');
-      setTables(tablesTerrasse);
-    } else {
-      setVue('salle');
-      setTables(tablesSalle);
-    }
+  const toggleEtat = async (table) => {
+    const tableRef = doc(db, 'tables', table.id);
+    const newEtat = table.etat === 'libre' ? 'occupée' : 'libre';
+    await updateDoc(tableRef, { etat: newEtat });
   };
 
-  const basculerService = () => {
-    setService(service === 1 ? 2 : 1);
-  };
-
-  const handleClickTable = (id) => {
-    alert('Table ' + id + ' - ' + vue + ' - Service ' + service);
-  };
+  const filteredTables = tables.filter(t => t.emplacement === vue);
 
   return (
-    <div style={{ padding: '20px', maxWidth: '600px', margin: 'auto' }}>
-      <h2>Plan de Salle - Service {service} ({vue === 'salle' ? 'Salle' : 'Terrasse'})</h2>
-      <button onClick={basculerVue}>
+    <div style={{ padding: '20px', maxWidth: '800px', margin: 'auto' }}>
+      <h2>Plan de Salle ({vue === 'salle' ? 'Salle' : 'Terrasse'})</h2>
+      <button onClick={() => setVue(vue === 'salle' ? 'terrasse' : 'salle')}>
         {vue === 'salle' ? 'Voir Terrasse' : 'Voir Salle'}
-      </button>
-      <button onClick={basculerService} style={{ marginLeft: '10px' }}>
-        {service === 1 ? 'Voir Service 2' : 'Voir Service 1'}
       </button>
 
       <div style={{
         display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: '15px',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
+        gap: '10px',
         marginTop: '20px'
       }}>
-        {tables.map((table) => (
+        {filteredTables.map((table) => (
           <div
             key={table.id}
-            onClick={() => handleClickTable(table.id)}
+            onClick={() => toggleEtat(table)}
             style={{
-              padding: '20px',
               backgroundColor: table.etat === 'libre' ? '#c8e6c9' : '#ffcdd2',
+              padding: '10px',
               borderRadius: '8px',
               textAlign: 'center',
               cursor: 'pointer'
             }}
           >
-            Table {table.id} <br />
+            <strong>{table.nom}</strong><br />
             {table.etat === 'libre' ? 'Libre' : 'Occupée'}
           </div>
         ))}
