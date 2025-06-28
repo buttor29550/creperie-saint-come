@@ -1,12 +1,18 @@
+// 🚩 src/pages/Accueil.js - Page d'accueil simple pour Crêperie de Saint Côme
+
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export default function Accueil() {
   return (
-    <div style={{ textAlign: 'center', marginTop: '40px' }}>
-      <h2>Bienvenue à la Crêperie de Saint Côme</h2>
-      <p>Cette application permet de gérer facilement vos réservations, le plan de salle, la terrasse, et les statistiques.</p>
-      <p>Utilisez le menu pour naviguer entre les différentes sections.</p>
-      <p style={{ color: 'gray' }}>Prête pour extensions futures avec Firebase et déploiement en ligne.</p>
+    <div style={{ textAlign: 'center', marginTop: '50px' }}>
+      <h1>Bienvenue à la Crêperie de Saint Côme</h1>
+      <p>Réservez votre table en ligne en quelques clics.</p>
+      <Link to="/reservation">
+        <button style={{ padding: '10px 20px', fontSize: '16px', cursor: 'pointer' }}>
+          Réserver une table
+        </button>
+      </Link>
     </div>
   );
 }
