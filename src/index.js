@@ -1,5 +1,3 @@
-// 🚩 src/index.js - Crêperie de Saint Côme avec styles globaux
-
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
