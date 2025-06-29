@@ -1,0 +1,2 @@
+Force redeploy for react-dnd installation confirmation on Vercel.
+Ce fichier est utilisé uniquement pour déclencher un redeployment propre.
