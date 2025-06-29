@@ -1,61 +1,71 @@
-// 🚩 src/pages/Stats.js - Crêperie de Saint Côme
+// 🚩 src/pages/Stats.js - Version Debug Crêperie de Saint Côme
 
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
 import { collection, getDocs } from 'firebase/firestore';
 
 export default function Stats() {
-  const [stats, setStats] = useState({
-    today: 0,
-    thisWeek: 0,
-    thisMonth: 0,
-    totalCouvertsToday: 0,
-    totalCouvertsWeek: 0
-  });
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchStats = async () => {
-      const snapshot = await getDocs(collection(db, 'reservations'));
-      const reservations = snapshot.docs.map(doc => doc.data());
+      try {
+        const snapshot = await getDocs(collection(db, 'reservations'));
+        const reservations = snapshot.docs.map(doc => doc.data());
 
-      const today = new Date();
-      const todayStr = today.toISOString().split('T')[0];
-      const weekStart = new Date(today.setDate(today.getDate() - today.getDay()));
-      const month = new Date().getMonth();
+        console.log("Reservations récupérées :", reservations);
 
-      let todayCount = 0;
-      let weekCount = 0;
-      let monthCount = 0;
-      let totalCouvertsToday = 0;
-      let totalCouvertsWeek = 0;
+        const today = new Date();
+        const todayStr = today.toISOString().split('T')[0];
+        const weekStart = new Date(today);
+        weekStart.setDate(today.getDate() - today.getDay());
+        const month = today.getMonth();
 
-      reservations.forEach(res => {
-        if (!res.date) return;
-        if (res.date === todayStr) {
-          todayCount++;
-          totalCouvertsToday += parseInt(res.nombre || 0);
-        }
-        const resDate = new Date(res.date);
-        if (resDate >= weekStart) {
-          weekCount++;
-          totalCouvertsWeek += parseInt(res.nombre || 0);
-        }
-        if (resDate.getMonth() === month) {
-          monthCount++;
-        }
-      });
+        let todayCount = 0;
+        let weekCount = 0;
+        let monthCount = 0;
+        let totalCouvertsToday = 0;
+        let totalCouvertsWeek = 0;
 
-      setStats({
-        today: todayCount,
-        thisWeek: weekCount,
-        thisMonth: monthCount,
-        totalCouvertsToday,
-        totalCouvertsWeek
-      });
+        reservations.forEach(res => {
+          if (!res.date) return;
+          if (res.date === todayStr) {
+            todayCount++;
+            totalCouvertsToday += parseInt(res.nombre || 0);
+          }
+          const resDate = new Date(res.date);
+          if (resDate >= weekStart) {
+            weekCount++;
+            totalCouvertsWeek += parseInt(res.nombre || 0);
+          }
+          if (resDate.getMonth() === month) {
+            monthCount++;
+          }
+        });
+
+        setStats({
+          today: todayCount,
+          thisWeek: weekCount,
+          thisMonth: monthCount,
+          totalCouvertsToday,
+          totalCouvertsWeek
+        });
+      } catch (err) {
+        console.error("Erreur Firestore:", err);
+        setError('Erreur lors de la récupération des données.');
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchStats();
   }, []);
+
+  if (loading) return <div className="container"><p>Chargement des statistiques...</p></div>;
+  if (error) return <div className="container"><p>{error}</p></div>;
+  if (!stats) return <div className="container"><p>Aucune donnée de statistiques disponible.</p></div>;
 
   return (
     <div className="container">
