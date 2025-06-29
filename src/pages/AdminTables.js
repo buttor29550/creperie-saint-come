@@ -1,18 +1,18 @@
-// 🚩 src/pages/AdminTables.js - Gestion des tables Crêperie de Saint Côme
+// 🚩 src/pages/AdminTables.js - Bloc #5 Étape 1 Crêperie de Saint Côme
 
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 
 export default function AdminTables() {
   const [tables, setTables] = useState([]);
   const [newTableName, setNewTableName] = useState('');
-  const [newTableEmplacement, setNewTableEmplacement] = useState('salle');
+  const [newTableSeats, setNewTableSeats] = useState(2);
 
   const fetchTables = async () => {
-    const querySnapshot = await getDocs(collection(db, 'tables'));
-    const tableList = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    setTables(tableList);
+    const snapshot = await getDocs(collection(db, 'tables'));
+    const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    setTables(data);
   };
 
   useEffect(() => {
@@ -24,13 +24,9 @@ export default function AdminTables() {
       alert('Veuillez entrer un nom de table.');
       return;
     }
-    await addDoc(collection(db, 'tables'), {
-      nom: newTableName,
-      emplacement: newTableEmplacement,
-      etat: 'libre',
-      reservations: []
-    });
+    await addDoc(collection(db, 'tables'), { nom: newTableName, places: parseInt(newTableSeats) });
     setNewTableName('');
+    setNewTableSeats(2);
     fetchTables();
   };
 
@@ -41,71 +37,54 @@ export default function AdminTables() {
     }
   };
 
-  const editTableName = async (id, currentName) => {
-    const newName = prompt('Nouveau nom pour la table :', currentName);
-    if (!newName) return;
-    const tableRef = doc(db, 'tables', id);
-    await updateDoc(tableRef, { nom: newName });
+  const updateTableName = async (id, newName) => {
+    await updateDoc(doc(db, 'tables', id), { nom: newName });
     fetchTables();
   };
 
-  const toggleEtat = async (id, currentEtat) => {
-    const tableRef = doc(db, 'tables', id);
-    const newEtat = currentEtat === 'libre' ? 'occupée' : 'libre';
-    await updateDoc(tableRef, { etat: newEtat });
+  const updateTableSeats = async (id, newSeats) => {
+    await updateDoc(doc(db, 'tables', id), { places: parseInt(newSeats) });
     fetchTables();
   };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '700px', margin: 'auto' }}>
-      <h2>Gestion des Tables</h2>
-      <div style={{ marginBottom: '20px' }}>
+    <div className="container">
+      <h2>🪑 Gestion des Tables</h2>
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
         <input
           type="text"
           placeholder="Nom de la table"
           value={newTableName}
           onChange={(e) => setNewTableName(e.target.value)}
-          style={{ marginRight: '10px' }}
         />
-        <select
-          value={newTableEmplacement}
-          onChange={(e) => setNewTableEmplacement(e.target.value)}
-          style={{ marginRight: '10px' }}
-        >
-          <option value="salle">Salle</option>
-          <option value="terrasse">Terrasse</option>
-        </select>
-        <button onClick={addTable}>➕ Ajouter Table</button>
+        <input
+          type="number"
+          placeholder="Places"
+          value={newTableSeats}
+          onChange={(e) => setNewTableSeats(e.target.value)}
+          min="1"
+        />
+        <button onClick={addTable}>Ajouter Table</button>
       </div>
 
-      {tables.length === 0 ? (
-        <p>Aucune table enregistrée pour le moment.</p>
-      ) : (
-        <table border="1" cellPadding="8" style={{ width: '100%', textAlign: 'left' }}>
-          <thead>
-            <tr>
-              <th>Nom</th>
-              <th>Emplacement</th>
-              <th>État</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {tables.map(table => (
-              <tr key={table.id}>
-                <td>{table.nom}</td>
-                <td>{table.emplacement}</td>
-                <td>{table.etat}</td>
-                <td>
-                  <button onClick={() => editTableName(table.id, table.nom)}>✏️ Modifier</button>
-                  <button onClick={() => toggleEtat(table.id, table.etat)}>🔄 Changer état</button>
-                  <button onClick={() => deleteTable(table.id)}>🗑️ Supprimer</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      {tables.map(table => (
+        <div key={table.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+          <input
+            type="text"
+            value={table.nom}
+            onChange={(e) => updateTableName(table.id, e.target.value)}
+            style={{ flex: '1' }}
+          />
+          <input
+            type="number"
+            value={table.places}
+            onChange={(e) => updateTableSeats(table.id, e.target.value)}
+            style={{ width: '60px' }}
+            min="1"
+          />
+          <button onClick={() => deleteTable(table.id)} style={{ backgroundColor: '#f44336' }}>Supprimer</button>
+        </div>
+      ))}
     </div>
   );
 }
