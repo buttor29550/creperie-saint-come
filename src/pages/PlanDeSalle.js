@@ -1,58 +1,103 @@
-// 🚩 src/pages/PlanDeSalle.js - Plan de Salle connecté à Firestore
+// 🚩 src/pages/PlanDeSalle.js - Bloc #5 Étape 2 Crêperie de Saint Côme
 
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
-import { collection, onSnapshot, doc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, updateDoc, doc } from 'firebase/firestore';
 
 export default function PlanDeSalle() {
   const [tables, setTables] = useState([]);
-  const [vue, setVue] = useState('salle'); // salle ou terrasse
+  const [reservations, setReservations] = useState([]);
+  const [selectedReservation, setSelectedReservation] = useState(null);
 
-  useEffect(() => {
-    const unsubscribe = onSnapshot(collection(db, 'tables'), (snapshot) => {
-      const data = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setTables(data);
+  const fetchData = async () => {
+    const tablesSnapshot = await getDocs(collection(db, 'tables'));
+    const reservationsSnapshot = await getDocs(collection(db, 'reservations'));
+    const tablesData = tablesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), occupied: false, reservationId: null }));
+    const reservationsData = reservationsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+    // Marquer les tables occupées selon les réservations validées
+    reservationsData.forEach(res => {
+      if (res.statut === 'validé' && res.tableId) {
+        const table = tablesData.find(t => t.id === res.tableId);
+        if (table) {
+          table.occupied = true;
+          table.reservationId = res.id;
+        }
+      }
     });
-    return () => unsubscribe();
-  }, []);
 
-  const toggleEtat = async (table) => {
-    const tableRef = doc(db, 'tables', table.id);
-    const newEtat = table.etat === 'libre' ? 'occupée' : 'libre';
-    await updateDoc(tableRef, { etat: newEtat });
+    setTables(tablesData);
+    setReservations(reservationsData.filter(res => res.statut === 'en attente'));
   };
 
-  const filteredTables = tables.filter(t => t.emplacement === vue);
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const assignReservationToTable = async (tableId) => {
+    if (!selectedReservation) {
+      alert("Veuillez sélectionner une réservation à attribuer.");
+      return;
+    }
+    await updateDoc(doc(db, 'reservations', selectedReservation.id), {
+      statut: 'validé',
+      tableId: tableId
+    });
+    setSelectedReservation(null);
+    fetchData();
+  };
 
   return (
-    <div style={{ padding: '20px', maxWidth: '800px', margin: 'auto' }}>
-      <h2>Plan de Salle ({vue === 'salle' ? 'Salle' : 'Terrasse'})</h2>
-      <button onClick={() => setVue(vue === 'salle' ? 'terrasse' : 'salle')}>
-        {vue === 'salle' ? 'Voir Terrasse' : 'Voir Salle'}
-      </button>
+    <div className="container">
+      <h2>🪑 Plan de Salle - Attribution des Réservations</h2>
+      <div style={{ display: 'flex', gap: '20px' }}>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
-        gap: '10px',
-        marginTop: '20px'
-      }}>
-        {filteredTables.map((table) => (
-          <div
-            key={table.id}
-            onClick={() => toggleEtat(table)}
-            style={{
-              backgroundColor: table.etat === 'libre' ? '#c8e6c9' : '#ffcdd2',
-              padding: '10px',
-              borderRadius: '8px',
-              textAlign: 'center',
-              cursor: 'pointer'
-            }}
-          >
-            <strong>{table.nom}</strong><br />
-            {table.etat === 'libre' ? 'Libre' : 'Occupée'}
+        {/* Réservations en attente */}
+        <div style={{ flex: '1' }}>
+          <h3>📋 Réservations en attente</h3>
+          {reservations.length === 0 && <p>Aucune réservation en attente.</p>}
+          {reservations.map(res => (
+            <div
+              key={res.id}
+              className="card"
+              style={{
+                border: selectedReservation?.id === res.id ? '2px solid green' : '1px solid #ccc',
+                cursor: 'pointer'
+              }}
+              onClick={() => setSelectedReservation(res)}
+            >
+              <p><strong>{res.nom}</strong> ({res.nombre} pers)</p>
+              <p>{res.date} à {res.heure}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Plan de salle */}
+        <div style={{ flex: '1' }}>
+          <h3>🪑 Tables</h3>
+          {tables.length === 0 && <p>Aucune table enregistrée.</p>}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px' }}>
+            {tables.map(table => (
+              <div
+                key={table.id}
+                onClick={() => !table.occupied && assignReservationToTable(table.id)}
+                style={{
+                  padding: '10px',
+                  border: '1px solid #ccc',
+                  backgroundColor: table.occupied ? '#f44336' : '#4caf50',
+                  color: '#fff',
+                  textAlign: 'center',
+                  cursor: table.occupied ? 'not-allowed' : 'pointer',
+                  borderRadius: '8px'
+                }}
+              >
+                <strong>{table.nom}</strong><br />
+                {table.places} places<br />
+                {table.occupied && "Occupée"}
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
     </div>
   );
