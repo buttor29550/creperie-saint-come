@@ -1,3 +1,4 @@
+import Stats from './pages/Stats';
 // 🚩 App.js Crêperie de Saint Côme avec gestion dynamique des tables
 
 import React from 'react';
@@ -17,7 +18,8 @@ function App() {
         <Route path="/admin" element={<GestionReservations />} />
         <Route path="/plan" element={<PlanDeSalle />} />
         <Route path="/admin-tables" element={<AdminTables />} />
-      </Routes>
+        <Route path="/stats" element={<Stats />} />
+</Routes>
     </Router>
   );
 }
