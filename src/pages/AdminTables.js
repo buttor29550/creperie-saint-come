@@ -1,4 +1,4 @@
-// 🚩 src/pages/AdminTables.js - Bloc #5 Étape 1 Crêperie de Saint Côme
+// 🚩 src/pages/AdminTables.js - Bloc #5 Étape 1 version améliorée (ergonomie)
 
 import React, { useEffect, useState } from 'react';
 import { db } from '../firebase';
@@ -42,45 +42,59 @@ export default function AdminTables() {
     fetchTables();
   };
 
-  const updateTableSeats = async (id, newSeats) => {
-    await updateDoc(doc(db, 'tables', id), { places: parseInt(newSeats) });
+  const handleSeatsChange = (index, value) => {
+    const updatedTables = [...tables];
+    updatedTables[index].places = value;
+    setTables(updatedTables);
+  };
+
+  const saveSeats = async (id, value) => {
+    await updateDoc(doc(db, 'tables', id), { places: parseInt(value) });
     fetchTables();
   };
 
   return (
     <div className="container">
       <h2>🪑 Gestion des Tables</h2>
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '15px' }}>
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', alignItems: 'center' }}>
+        <label>Nom :</label>
         <input
           type="text"
           placeholder="Nom de la table"
           value={newTableName}
           onChange={(e) => setNewTableName(e.target.value)}
         />
+        <label>Places :</label>
         <input
           type="number"
           placeholder="Places"
           value={newTableSeats}
           onChange={(e) => setNewTableSeats(e.target.value)}
           min="1"
+          style={{ width: '80px' }}
         />
         <button onClick={addTable}>Ajouter Table</button>
       </div>
 
-      {tables.map(table => (
-        <div key={table.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px' }}>
+      {tables.map((table, index) => (
+        <div key={table.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '10px', padding: '10px' }}>
+          <label>Nom :</label>
           <input
             type="text"
             value={table.nom}
             onChange={(e) => updateTableName(table.id, e.target.value)}
             style={{ flex: '1' }}
+            placeholder="Nom de la table"
           />
+          <label>Places :</label>
           <input
             type="number"
             value={table.places}
-            onChange={(e) => updateTableSeats(table.id, e.target.value)}
-            style={{ width: '60px' }}
+            onChange={(e) => handleSeatsChange(index, e.target.value)}
+            onBlur={() => saveSeats(table.id, table.places)}
+            style={{ width: '80px' }}
             min="1"
+            placeholder="Places"
           />
           <button onClick={() => deleteTable(table.id)} style={{ backgroundColor: '#f44336' }}>Supprimer</button>
         </div>
