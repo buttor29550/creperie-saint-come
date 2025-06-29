@@ -3,20 +3,18 @@
   "version": "1.0.0",
   "private": true,
   "dependencies": {
-    "chart.js": "^4.5.0",
-    "firebase": "^11.9.1",
     "react": "^18.2.0",
-    "react-chartjs-2": "^5.3.0",
-    "react-dnd": "^16.0.1",
-    "react-dnd-html5-backend": "^16.0.1",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.14.1",
-    "react-scripts": "5.0.1"
+    "react-scripts": "5.0.1",
+    "react-dnd": "^16.0.1",
+    "react-dnd-html5-backend": "^16.0.1",
+    "firebase": "^10.11.0"
   },
   "scripts": {
-    "prebuild": "chmod +x node_modules/.bin/react-scripts || true",
     "start": "react-scripts start",
-    "build": "react-scripts build"
+    "build": "react-scripts build",
+    "vercel-build": "echo 'force rebuild'"
   },
   "browserslist": {
     "production": [
