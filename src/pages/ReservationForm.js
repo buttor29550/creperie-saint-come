@@ -1,4 +1,4 @@
-// 🚩 src/pages/ReservationForm.js - Crêperie de Saint Côme avec créneaux horaires fixes
+// 🚩 src/pages/ReservationForm.js - Crêperie de Saint Côme avec créneaux horaires fixes et correction
 
 import React, { useState } from 'react';
 import { db } from '../firebase';
@@ -51,7 +51,7 @@ export default function ReservationForm() {
       });
     } catch (error) {
       console.error('Erreur lors de la réservation:', error);
-      alert('Erreur lors de l'envoi de la réservation. Veuillez réessayer.');
+      alert("Erreur lors de l'envoi de la réservation. Veuillez réessayer.");
     }
   };
 
