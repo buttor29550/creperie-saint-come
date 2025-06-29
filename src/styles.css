@@ -1,37 +1,140 @@
+
 body {
-  font-family: "Segoe UI", sans-serif;
-  background-color: #f8f9fa;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f7f7f7;
   margin: 0;
   padding: 0;
-  color: #333;
 }
 
 .container {
-  max-width: 800px;
-  margin: auto;
+  max-width: 900px;
+  margin: 40px auto;
   padding: 20px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 h1, h2, h3 {
+  text-align: center;
   color: #2c3e50;
 }
 
-button {
-  background-color: #28a745;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  cursor: pointer;
-  border-radius: 4px;
+nav {
+  display: flex;
+  justify-content: center;
+  background-color: #27ae60;
+  padding: 10px 0;
 }
 
-button:hover {
-  background-color: #218838;
+nav a {
+  color: #fff;
+  text-decoration: none;
+  margin: 0 15px;
+  font-weight: 600;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+.card {
+  background: #ecf0f1;
+  padding: 15px;
+  margin: 10px auto;
+  border-radius: 5px;
+  max-width: 500px;
+  text-align: center;
+}
+
+button, .btn {
+  background-color: #27ae60;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button:hover, .btn:hover {
+  background-color: #219150;
 }
 
 input, select {
   padding: 8px;
-  margin: 5px 0;
-  width: 100%;
+  margin: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  width: calc(100% - 20px);
   box-sizing: border-box;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 20px 0;
+}
+
+table th, table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+table th {
+  background-color: #27ae60;
+  color: #fff;
+}
+
+.table-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 10px;
+  justify-items: center;
+  margin: 20px;
+}
+
+.table-cell {
+  background: #3498db;
+  color: white;
+  padding: 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: center;
+  font-weight: 600;
+}
+
+.table-cell:hover {
+  background: #2980b9;
+}
+
+.status-pending {
+  background-color: #f39c12;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.status-confirmed {
+  background-color: #27ae60;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+.status-canceled {
+  background-color: #e74c3c;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+footer {
+  text-align: center;
+  padding: 15px;
+  color: #777;
+  background: #f0f0f0;
+  font-size: 14px;
+  margin-top: 40px;
 }
